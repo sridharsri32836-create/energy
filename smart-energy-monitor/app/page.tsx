@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Zap, Activity, Power, Battery, RefreshCw } from 'lucide-react'
+import { Zap, Activity, Power, Battery, RefreshCw, Mail, Calendar, FileText } from 'lucide-react'
 import { Navbar } from '@/components/layout/Navbar'
 import { MetricCard } from '@/components/cards/MetricCard'
 import { RealtimePowerChart } from '@/components/charts/RealtimePowerChart'
@@ -11,6 +11,7 @@ import { AlertsPanel } from '@/components/alerts/AlertCard'
 import { CostPanel } from '@/components/panels/CostPanel'
 import { InsightsPanel } from '@/components/panels/InsightsPanel'
 import { DeviceStatus } from '@/components/panels/DeviceStatus'
+import { ReportPreviewModal } from '@/components/modals/ReportPreviewModal'
 import { useRealtimeReadings } from '@/hooks/useRealtimeReadings'
 import { useAlerts } from '@/hooks/useAlerts'
 import { useDailyUsage } from '@/hooks/useDailyUsage'
@@ -51,6 +52,11 @@ export default function DashboardPage() {
   const { data: dailyUsage, loading: dailyLoading } = useDailyUsage(30)
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [generatingPredictions, setGeneratingPredictions] = useState(false)
+  
+  // Preview Modal State
+  const [previewData, setPreviewData] = useState<any | null>(null)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+
   const tariffRate = getTariffRate()
 
   // Load predictions
@@ -82,6 +88,39 @@ export default function DashboardPage() {
       latest.power > prevPower * 1.05 ? 'up' :
         latest.power < prevPower * 0.95 ? 'down' : 'stable'
 
+  async function handleSendDemoReport(type: 'DAILY' | 'WEEKLY' | 'MONTHLY') {
+    const id = toast.loading(`Generating ${type.toLowerCase()} report...`)
+    try {
+      const res = await fetch('/api/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type }),
+      })
+      const json = await res.json()
+      
+      if (json.success) {
+        // Calculation succeeded, show preview
+        setPreviewData(json.data)
+        setIsPreviewOpen(true)
+        
+        if (json.emailSent) {
+          toast.success(json.message || 'Report sent and previewing!', { id })
+        } else {
+          // If email failed (likely quota), still show success for the calculation/preview
+          toast.success('Report generated! (Email delivery skipped)', { id })
+          toast(json.message || 'Email quota exceeded. Showing live preview...', {
+            icon: '📊',
+            duration: 6000,
+          })
+        }
+      } else {
+        toast.error(json.error || 'Failed to generate report', { id })
+      }
+    } catch (err) {
+      toast.error('Connection error', { id })
+    }
+  }
+
   async function handleGeneratePredictions() {
     setGeneratingPredictions(true)
     try {
@@ -109,7 +148,7 @@ export default function DashboardPage() {
       <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-white">Energy Dashboard</h1>
             <p className="text-slate-500 text-sm mt-0.5">
@@ -251,7 +290,50 @@ export default function DashboardPage() {
           <InsightsPanel readings={readings} dailyUsage={dailyUsage} />
         </SectionCard>
 
+        {/* ─── Section 8: Demo & Presentation ─── */}
+        <SectionCard 
+            title="🛠️ Demo & Presentation Controls" 
+            className="border border-yellow-500/10 bg-yellow-500/5"
+        >
+          <div className="p-4 rounded-xl bg-black/20 border border-white/5">
+            <h3 className="text-sm font-medium text-slate-300 mb-3">One-Click Email Reports (Mock Data)</h3>
+            <div className="flex flex-wrap gap-4">
+              <button
+                onClick={() => handleSendDemoReport('DAILY')}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600/10 border border-blue-600/40 text-blue-400 hover:bg-blue-600/20 transition-all text-sm font-semibold"
+              >
+                <Mail className="w-4 h-4" />
+                Send Daily Report
+              </button>
+              <button
+                onClick={() => handleSendDemoReport('WEEKLY')}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600/10 border border-indigo-600/40 text-indigo-400 hover:bg-indigo-600/20 transition-all text-sm font-semibold"
+              >
+                <Calendar className="w-4 h-4" />
+                Send Weekly Report
+              </button>
+              <button
+                onClick={() => handleSendDemoReport('MONTHLY')}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600/10 border border-purple-600/40 text-purple-400 hover:bg-purple-600/20 transition-all text-sm font-semibold"
+              >
+                <FileText className="w-4 h-4" />
+                Send March Report (Monthly)
+              </button>
+            </div>
+            <p className="text-xs text-slate-500 mt-4 italic">
+              * These buttons use historical data (including the generated March data) to send simulation emails to your verified address.
+            </p>
+          </div>
+        </SectionCard>
+
       </main>
+
+      {/* Report Preview Modal */}
+      <ReportPreviewModal 
+        isOpen={isPreviewOpen} 
+        onClose={() => setIsPreviewOpen(false)} 
+        data={previewData} 
+      />
     </div>
   )
 }

@@ -83,3 +83,85 @@ export async function sendAlertSMS(alertType: string, severity: string, message:
         return false;
     }
 }
+export async function sendUsageReport(type: 'DAILY' | 'WEEKLY' | 'MONTHLY', reportData: {
+    total_kwh: number,
+    cost: number,
+    peak_usage?: number,
+    average_voltage?: number,
+    startDate?: string,
+    endDate?: string
+}, customTargetEmail?: string) {
+    const finalEmail = customTargetEmail || targetEmail;
+    if (!resend) return { data: null, error: 'no_api_key' };
+    if (!finalEmail) return { data: null, error: 'no_target_email' };
+
+    const title = `${type.charAt(0) + type.slice(1).toLowerCase()} Energy Report`;
+    const period = reportData.startDate && reportData.endDate 
+        ? `${new Date(reportData.startDate).toLocaleDateString()} - ${new Date(reportData.endDate).toLocaleDateString()}`
+        : new Date().toLocaleDateString();
+
+    try {
+        const { data: resendData, error } = await resend.emails.send({
+            from: 'GridSense Reports <onboarding@resend.dev>',
+            to: finalEmail,
+            subject: `📊 ${title} - ${period}`,
+            html: `
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb;">
+                    <div style="background-color: #2563eb; padding: 30px 20px; text-align: center;">
+                        <h1 style="color: white; margin: 0; font-size: 24px;">GridSense Energy</h1>
+                        <p style="color: #bfdbfe; margin: 5px 0 0 0;">${title}</p>
+                    </div>
+                    <div style="padding: 30px; background-color: white;">
+                        <p style="font-size: 16px; color: #374151; margin-bottom: 25px;">Hello! Here is your energy consumption summary for the period of <strong>${period}</strong>.</p>
+                        
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
+                            <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; flex: 1; min-width: 120px; text-align: center;">
+                                <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; margin-bottom: 5px;">Usage</div>
+                                <div style="font-size: 20px; font-weight: bold; color: #111827;">${reportData.total_kwh.toFixed(2)} kWh</div>
+                            </div>
+                            <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; flex: 1; min-width: 120px; text-align: center;">
+                                <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; margin-bottom: 5px;">Cost</div>
+                                <div style="font-size: 20px; font-weight: bold; color: #059669;">₹${reportData.cost.toFixed(2)}</div>
+                            </div>
+                        </div>
+
+                        ${reportData.peak_usage ? `
+                        <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 20px;">
+                            <h3 style="font-size: 14px; color: #111827; margin-bottom: 10px;">Insights</h3>
+                            <ul style="padding-left: 20px; color: #4b5563; font-size: 14px; line-height: 1.6;">
+                                <li>Peak power monitored: <strong>${reportData.peak_usage.toFixed(0)}W</strong></li>
+                                <li>Average system voltage: <strong>${reportData.average_voltage?.toFixed(1) || '245.0'}V</strong></li>
+                                <li>Efficiency status: <span style="color: #059669; font-weight: 500;">Optimal</span></li>
+                            </ul>
+                        </div>
+                        ` : ''}
+
+                        <div style="margin-top: 40px; text-align: center;">
+                            <a href="#" style="background-color: #2563eb; color: white; padding: 12px 25px; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 14px;">View Full Dashboard</a>
+                        </div>
+                    </div>
+                    <div style="padding: 20px; text-align: center; background-color: #f3f4f6;">
+                        <p style="font-size: 12px; color: #9ca3af; margin:0;">
+                            GridSense Smart Monitor · Sent to ${finalEmail}<br/>
+                            This is an automated report to help you track energy efficiency.
+                        </p>
+                    </div>
+                </div>
+            `,
+        });
+
+        if (error) {
+            console.error('Resend API Error:', error);
+            // Check for quota error string specifically
+            const errorMsg = (error as any).message || '';
+            const isQuotaError = errorMsg.toLowerCase().includes('quota') || (error as any).status === 429;
+            return { data: null, error: isQuotaError ? 'daily_quota_exceeded' : 'send_failed' };
+        }
+
+        console.log('Usage report sent successfully:', resendData);
+        return { data: resendData, error: null };
+    } catch (err) {
+        console.error('Failed to send usage report:', err);
+        return { data: null, error: 'internal_error' };
+    }
+}

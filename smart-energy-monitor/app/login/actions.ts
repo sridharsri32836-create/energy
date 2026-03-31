@@ -14,6 +14,9 @@ export async function signInWithGoogle() {
     provider: 'google',
     options: {
       redirectTo: `${origin}/auth/callback`,
+      queryParams: {
+        prompt: 'select_account',
+      },
     },
   })
 
@@ -59,7 +62,7 @@ export async function signup(formData: FormData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/?message=Check your email to confirm sign up (if required by Supabase settings).')
+  redirect('/login?message=Check your email to confirm sign up (if required by Supabase settings).')
 }
 
 export async function logout() {
