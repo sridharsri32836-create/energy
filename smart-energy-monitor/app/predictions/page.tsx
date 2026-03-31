@@ -71,15 +71,21 @@ export default function PredictionsPage() {
 
                 {/* Summary */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="section-card text-center">
-                        <Sparkles className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-                        <p className="text-slate-400 text-sm">7-Day Predicted Energy</p>
-                        <p className="text-2xl font-bold text-purple-400 mt-1">{totalPredictedEnergy.toFixed(2)} kWh</p>
+                    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="relative bg-white/5 backdrop-blur-md border border-white/10 shadow-lg shadow-black/20 hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300 rounded-xl p-6 text-center overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none mix-blend-overlay" />
+                        <div className="relative z-10">
+                            <Sparkles className="w-6 h-6 text-purple-400 mx-auto mb-2" />
+                            <p className="text-slate-400 text-sm">7-Day Predicted Energy</p>
+                            <p className="text-2xl font-bold text-purple-400 mt-1">{totalPredictedEnergy.toFixed(2)} kWh</p>
+                        </div>
                     </motion.div>
-                    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="section-card text-center">
-                        <TrendingUp className="w-6 h-6 text-electric-blue mx-auto mb-2" />
-                        <p className="text-slate-400 text-sm">7-Day Estimated Bill</p>
-                        <p className="text-2xl font-bold text-electric-blue mt-1">{formatCost(totalPredictedCost)}</p>
+                    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="relative bg-white/5 backdrop-blur-md border border-white/10 shadow-lg shadow-black/20 hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300 rounded-xl p-6 text-center overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none mix-blend-overlay" />
+                        <div className="relative z-10">
+                            <TrendingUp className="w-6 h-6 text-electric-blue mx-auto mb-2" />
+                            <p className="text-slate-400 text-sm">7-Day Estimated Bill</p>
+                            <p className="text-2xl font-bold text-electric-blue mt-1">{formatCost(totalPredictedCost)}</p>
+                        </div>
                     </motion.div>
                 </div>
 

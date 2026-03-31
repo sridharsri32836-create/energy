@@ -46,7 +46,7 @@ export default function SettingsPage() {
         toast.success('Reset to defaults')
     }
 
-    const inputCls = "w-full bg-navy-800 border border-white/10 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none focus:border-electric-blue/50 focus:ring-1 focus:ring-electric-blue/20 transition-all"
+    const inputCls = "w-full bg-white/5 backdrop-blur-md shadow-inner border border-white/10 rounded-xl px-4 py-3 text-slate-200 text-sm outline-none focus:border-electric-blue/50 focus:ring-1 focus:ring-electric-blue/20 focus:bg-white/10 transition-all duration-300"
 
     return (
         <div className="min-h-screen">
@@ -141,15 +141,7 @@ export default function SettingsPage() {
                                     className={inputCls}
                                 />
                             </div>
-                            <div className="p-3 rounded-lg bg-white/5 border border-white/8 text-xs space-y-2">
-                                <p className="text-slate-400">
-                                    <span className="text-slate-300 font-medium">IoT API Endpoint:</span>{' '}
-                                    <code className="text-electric-blue">POST /api/readings</code>
-                                </p>
-                                <p className="text-slate-600">
-                                    ESP32 should POST JSON with: voltage, current, power, energy_kwh, timestamp
-                                </p>
-                            </div>
+
                         </motion.div>
 
                         {/* Action Buttons */}

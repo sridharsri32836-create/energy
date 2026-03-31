@@ -72,11 +72,14 @@ export function MetricCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay }}
             whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-            className={`relative overflow-hidden rounded-2xl border bg-navy-900/60 backdrop-blur-sm p-6 cursor-default transition-all duration-300 ${colors.border}`}
+            className={`relative overflow-hidden rounded-2xl border bg-white/5 backdrop-blur-md shadow-lg shadow-black/20 hover:bg-white/10 p-6 cursor-default transition-all duration-300 ${colors.border}`}
             style={{ boxShadow: colors.shadow }}
         >
             {/* Background gradient glow */}
             <div className={`absolute inset-0 bg-gradient-to-br ${colors.glow} pointer-events-none`} />
+            
+            {/* Inner glassmorphism gradient for depth */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none z-0 mix-blend-overlay" />
 
             {/* Animated pulse ring on corner */}
             <motion.div

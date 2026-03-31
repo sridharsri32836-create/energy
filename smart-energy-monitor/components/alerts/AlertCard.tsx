@@ -8,21 +8,21 @@ const alertConfig = {
     VOLTAGE_SPIKE: {
         icon: Zap,
         color: 'text-yellow-400',
-        bg: 'bg-yellow-500/10 border-yellow-500/30',
+        bg: 'bg-yellow-500/5 backdrop-blur-md border-yellow-500/20 shadow-lg shadow-black/20',
         glow: '0 0 20px rgba(234,179,8,0.15)',
         label: 'Voltage Spike',
     },
     CURRENT_SURGE: {
         icon: Activity,
         color: 'text-alert-orange',
-        bg: 'bg-alert-orange/10 border-alert-orange/30',
+        bg: 'bg-alert-orange/5 backdrop-blur-md border-alert-orange/20 shadow-lg shadow-black/20',
         glow: '0 0 20px rgba(251,146,60,0.15)',
         label: 'Current Surge',
     },
     ANOMALY: {
         icon: AlertTriangle,
         color: 'text-alert-red',
-        bg: 'bg-alert-red/10 border-alert-red/30',
+        bg: 'bg-alert-red/5 backdrop-blur-md border-alert-red/20 shadow-lg shadow-black/20',
         glow: '0 0 20px rgba(239,68,68,0.15)',
         label: 'Anomaly Detected',
     },
@@ -56,9 +56,10 @@ export function AlertCard({ alert, onDismiss, compact = false }: AlertCardProps)
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 20, scale: 0.95 }}
             transition={{ duration: 0.3 }}
-            className={`relative border rounded-xl p-4 ${config.bg} ${alert.is_read ? 'opacity-60' : ''}`}
+            className={`relative border rounded-xl p-4 overflow-hidden transition-all duration-300 hover:brightness-110 hover:-translate-y-0.5 ${config.bg} ${alert.is_read ? 'opacity-60 grayscale-[0.5]' : ''}`}
             style={{ boxShadow: alert.is_read ? 'none' : config.glow }}
         >
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none mix-blend-overlay" />
             {/* Unread pulse dot */}
             {!alert.is_read && (
                 <span className="absolute top-3 right-3">

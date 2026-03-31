@@ -84,24 +84,49 @@ body::before {
 
 /* ─── Glassmorphism utility ────────────────────────────────────────── */
 .glass {
-  background: rgba(6, 12, 36, 0.6);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 
 .glass-hover:hover {
-  border-color: rgba(59, 130, 246, 0.25);
-  background: rgba(6, 12, 36, 0.75);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+  transition: all 300ms ease;
 }
 
 /* ─── Section Card ─────────────────────────────────────────────────── */
 .section-card {
-  background: rgba(6, 12, 36, 0.6);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
   border-radius: 1rem;
   padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 300ms ease;
+}
+
+.section-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.section-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.section-card:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* ─── Glow effects ─────────────────────────────────────────────────── */

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
+import ShaderBackground from '@/components/ui/shader-background'
 
 export const metadata: Metadata = {
   title: 'Smart Energy Monitor | Real-time Electricity Dashboard',
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="antialiased min-h-screen">
+        <ShaderBackground />
         {children}
         <Toaster
           position="bottom-right"

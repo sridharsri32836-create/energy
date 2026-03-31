@@ -26,7 +26,7 @@ export function Navbar({ isOnline = false, unreadAlerts = 0 }: NavbarProps) {
     const [mobileOpen, setMobileOpen] = useState(false)
 
     return (
-        <nav className="sticky top-0 z-50 bg-navy-950/80 backdrop-blur-xl border-b border-white/5">
+        <nav className="sticky top-0 z-50 bg-white/5 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/20 transition-all duration-300">
             <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
@@ -37,8 +37,9 @@ export function Navbar({ isOnline = false, unreadAlerts = 0 }: NavbarProps) {
                                 <Zap className="w-5 h-5 text-electric-blue" />
                             </div>
                         </div>
-                        <span className="text-white font-bold text-lg tracking-tight">
-                            Smart<span className="text-electric-blue">Energy</span>
+                        <span className="flex items-center text-2xl font-black uppercase tracking-widest -skew-x-12 transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                            <span className="text-transparent [-webkit-text-stroke:1px_rgba(255,255,255,0.85)] drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">GRID</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-cyan-300 drop-shadow-[0_0_12px_rgba(59,130,246,0.8)] ml-[2px]">SENSE</span>
                         </span>
                     </Link>
 
@@ -52,7 +53,7 @@ export function Navbar({ isOnline = false, unreadAlerts = 0 }: NavbarProps) {
                                     href={href}
                                     className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200
                     ${active
-                                            ? 'text-electric-blue bg-electric-blue/10'
+                                            ? 'text-red-300 bg-gradient-to-r from-red-500/10 to-rose-500/10 ring-1 ring-inset ring-red-400/30 shadow-md shadow-red-500/20 hover:from-red-400/15 hover:to-rose-400/15 hover:shadow-red-500/30'
                                             : 'text-slate-400 hover:text-white hover:bg-white/5'
                                         }`}
                                 >
@@ -98,7 +99,7 @@ export function Navbar({ isOnline = false, unreadAlerts = 0 }: NavbarProps) {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="md:hidden border-t border-white/5 bg-navy-950/95"
+                        className="md:hidden border-t border-white/10 bg-black/40 backdrop-blur-2xl shadow-xl shadow-black/50"
                     >
                         <div className="px-4 py-3 space-y-1">
                             {navLinks.map(({ href, label, icon: Icon }) => (
@@ -108,7 +109,7 @@ export function Navbar({ isOnline = false, unreadAlerts = 0 }: NavbarProps) {
                                     onClick={() => setMobileOpen(false)}
                                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all
                     ${pathname === href
-                                            ? 'text-electric-blue bg-electric-blue/10'
+                                            ? 'text-red-300 bg-gradient-to-r from-red-500/10 to-rose-500/10 ring-1 ring-inset ring-red-400/30 shadow-md shadow-red-500/20 hover:from-red-400/15 hover:to-rose-400/15 hover:shadow-red-500/30'
                                             : 'text-slate-400 hover:text-white hover:bg-white/5'
                                         }`}
                                 >

@@ -35,7 +35,7 @@ export default function EnergyPage() {
                         <p className="text-slate-500 text-sm mt-1">Detailed electricity consumption analytics</p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1.5 bg-navy-800 border border-white/8 rounded-xl px-3 py-2">
+                        <div className="flex items-center gap-1.5 bg-white/5 backdrop-blur-md shadow-inner border border-white/10 rounded-xl px-3 py-2 transition-all duration-300">
                             <Filter className="w-4 h-4 text-slate-400" />
                             <select
                                 value={filterDays}
@@ -62,10 +62,13 @@ export default function EnergyPage() {
                             initial={{ opacity: 0, y: 16 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: i * 0.1 }}
-                            className="section-card text-center"
+                            className="relative bg-white/5 backdrop-blur-md border border-white/10 shadow-lg shadow-black/20 hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300 rounded-xl p-6 text-center overflow-hidden"
                         >
-                            <p className="text-slate-400 text-sm">{s.label}</p>
-                            <p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p>
+                            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none mix-blend-overlay" />
+                            <div className="relative z-10">
+                                <p className="text-slate-400 text-sm">{s.label}</p>
+                                <p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p>
+                            </div>
                         </motion.div>
                     ))}
                 </div>

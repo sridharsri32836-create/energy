@@ -46,8 +46,9 @@ export function CostPanel({ todayCost, weeklyEstimate, monthlyProjection, tariff
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.4, delay }}
-                    className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/8 hover:border-white/15 transition-all"
+                    className="relative overflow-hidden flex items-center gap-4 p-4 rounded-xl bg-white/5 backdrop-blur-md shadow-md shadow-black/20 border border-white/10 hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300"
                 >
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none mix-blend-overlay" />
                     <div className={`p-2.5 rounded-xl ${bg}`}>
                         <Icon className={`w-5 h-5 ${color}`} />
                     </div>
