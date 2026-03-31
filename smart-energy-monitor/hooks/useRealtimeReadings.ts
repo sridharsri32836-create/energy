@@ -2,12 +2,26 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase, type MeterReading } from '@/lib/supabase'
 
+// Device is considered offline if no reading arrives within this window
+const OFFLINE_TIMEOUT_MS = 30_000 // 30 seconds
+
 export function useRealtimeReadings(initialLimit = 60) {
     const [readings, setReadings] = useState<MeterReading[]>([])
     const [latestReading, setLatestReading] = useState<MeterReading | null>(null)
     const [isConnected, setIsConnected] = useState(false)
     const [lastSeen, setLastSeen] = useState<Date | null>(null)
     const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null)
+    const offlineTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+    // Mark device online and reset the inactivity timer
+    const markOnline = () => {
+        setIsConnected(true)
+        setLastSeen(new Date())
+        if (offlineTimerRef.current) clearTimeout(offlineTimerRef.current)
+        offlineTimerRef.current = setTimeout(() => {
+            setIsConnected(false)
+        }, OFFLINE_TIMEOUT_MS)
+    }
 
     // Initial fetch
     useEffect(() => {
@@ -22,14 +36,20 @@ export function useRealtimeReadings(initialLimit = 60) {
                 setReadings(sorted)
                 if (sorted.length > 0) {
                     setLatestReading(sorted[sorted.length - 1])
-                    setLastSeen(new Date())
+                    // Only mark online if the latest reading is recent (within offline threshold)
+                    const latestTs = new Date(sorted[sorted.length - 1].timestamp).getTime()
+                    if (Date.now() - latestTs < OFFLINE_TIMEOUT_MS) {
+                        markOnline()
+                    }
                 }
             }
         }
         fetchInitial()
+        return () => { if (offlineTimerRef.current) clearTimeout(offlineTimerRef.current) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialLimit])
 
-    // Realtime subscription
+    // Realtime subscription — only data arrival drives online state, NOT WebSocket status
     useEffect(() => {
         const channel = supabase
             .channel('meter_readings_live')
@@ -43,16 +63,14 @@ export function useRealtimeReadings(initialLimit = 60) {
                         return updated.length > initialLimit ? updated.slice(-initialLimit) : updated
                     })
                     setLatestReading(newReading)
-                    setLastSeen(new Date())
-                    setIsConnected(true)
+                    markOnline()
                 }
             )
-            .subscribe((status) => {
-                setIsConnected(status === 'SUBSCRIBED')
-            })
+            .subscribe()
 
         channelRef.current = channel
         return () => { supabase.removeChannel(channel) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialLimit])
 
     const resetReadings = async () => {

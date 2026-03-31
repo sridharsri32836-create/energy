@@ -20,3 +20,23 @@ export async function PATCH(
         return NextResponse.json({ error: message }, { status: 500 })
     }
 }
+
+export async function DELETE(
+    req: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params
+        const supabase = createServiceClient()
+        const { error } = await supabase
+            .from('alerts')
+            .delete()
+            .eq('id', id)
+
+        if (error) throw error
+        return NextResponse.json({ success: true })
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Internal error'
+        return NextResponse.json({ error: message }, { status: 500 })
+    }
+}

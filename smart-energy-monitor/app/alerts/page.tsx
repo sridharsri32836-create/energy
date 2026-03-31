@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bell, Filter, CheckSquare } from 'lucide-react'
+import { Bell, Filter, CheckSquare, Trash2 } from 'lucide-react'
 import { Navbar } from '@/components/layout/Navbar'
 import { AlertCard } from '@/components/alerts/AlertCard'
 import { useAlerts } from '@/hooks/useAlerts'
@@ -10,7 +10,7 @@ import { useRealtimeReadings } from '@/hooks/useRealtimeReadings'
 type FilterType = 'ALL' | 'VOLTAGE_SPIKE' | 'CURRENT_SURGE' | 'ANOMALY'
 
 export default function AlertsPage() {
-    const { alerts, unreadCount, markAsRead, markAllRead } = useAlerts()
+    const { alerts, unreadCount, markAsRead, markAllRead, deleteAlert, deleteAllAlerts } = useAlerts()
     const { isConnected } = useRealtimeReadings(5)
     const [filter, setFilter] = useState<FilterType>('ALL')
 
@@ -44,15 +44,26 @@ export default function AlertsPage() {
                             {unreadCount} unread · {alerts.length} total alerts
                         </p>
                     </div>
-                    {unreadCount > 0 && (
-                        <button
-                            onClick={markAllRead}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-neon-green/10 border border-neon-green/20 text-neon-green text-sm font-medium hover:bg-neon-green/15 transition-all"
-                        >
-                            <CheckSquare className="w-4 h-4" />
-                            Mark All Read
-                        </button>
-                    )}
+                    <div className="flex gap-2">
+                        {unreadCount > 0 && (
+                            <button
+                                onClick={markAllRead}
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-neon-green/10 border border-neon-green/20 text-neon-green text-sm font-medium hover:bg-neon-green/15 transition-all"
+                            >
+                                <CheckSquare className="w-4 h-4" />
+                                Mark All Read
+                            </button>
+                        )}
+                        {alerts.length > 0 && (
+                            <button
+                                onClick={deleteAllAlerts}
+                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-alert-red/10 border border-alert-red/20 text-alert-red text-sm font-medium hover:bg-alert-red/15 transition-all"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                Clear All
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {/* Filter tabs */}
@@ -87,7 +98,7 @@ export default function AlertsPage() {
                             </motion.div>
                         ) : (
                             filtered.map((alert) => (
-                                <AlertCard key={alert.id} alert={alert} onDismiss={markAsRead} />
+                                <AlertCard key={alert.id} alert={alert} onDismiss={markAsRead} onDelete={deleteAlert} />
                             ))
                         )}
                     </AnimatePresence>

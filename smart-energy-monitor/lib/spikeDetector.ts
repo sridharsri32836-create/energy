@@ -54,13 +54,13 @@ export function detectSpike(
         if (prev && prev.voltage > 0) {
             const jumpPct = Math.abs((reading.voltage - prev.voltage) / prev.voltage) * 100
             const alreadyFlagged = results.some(r => r.alertType === 'VOLTAGE_SPIKE')
-            if (jumpPct >= thresholds.VOLTAGE_JUMP_PCT && !alreadyFlagged) {
+            if (jumpPct >= thresholds.VOLTAGE_JUMP_PCT && !alreadyFlagged && reading.voltage > 50) {
                 results.push({
                     isSpike: true,
                     alertType: 'VOLTAGE_SPIKE',
                     severity: 'HIGH',
                     value: reading.voltage,
-                    message: `Rapid voltage jump: ${jumpPct.toFixed(1)}% change detected (${prev.voltage.toFixed(1)}V → ${reading.voltage.toFixed(1)}V). Possible power surge or equipment fault.`,
+                    message: `Rapid voltage fluctuation: ${jumpPct.toFixed(1)}% change detected (${prev.voltage.toFixed(1)}V → ${reading.voltage.toFixed(1)}V). Possible power surge or grid instability.`,
                 })
             }
         }
@@ -117,6 +117,21 @@ export function detectSpike(
             value: reading.power,
             message: `Off-hours usage: ${reading.power.toFixed(0)}W at ${timeStr}. High consumption during off-peak hours (10 PM–5 AM) — check for appliances left on.`,
         })
+    }
+
+    // ─── 7. Power Outage / Low Voltage ─────────────────────────────────────
+    if (reading.voltage < 50 && recentReadings.length >= 1) {
+        const prev = recentReadings[recentReadings.length - 1]
+        // Only trigger an outage alert if we suddenly drop from a healthy voltage
+        if (prev && prev.voltage > 100) {
+            results.push({
+                isSpike: true,
+                alertType: 'ANOMALY',
+                severity: 'HIGH',
+                value: reading.voltage,
+                message: `Power outage detected! Voltage crashed from ${prev.voltage.toFixed(1)}V to ${reading.voltage.toFixed(1)}V.`,
+            })
+        }
     }
 
     return results

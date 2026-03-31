@@ -13,20 +13,21 @@ const targetEmail = process.env.ALERT_TARGET_EMAIL;
 const targetPhone = process.env.ALERT_TARGET_PHONE;
 const twilioFromPhone = process.env.TWILIO_PHONE_NUMBER;
 
-export async function sendAlertEmail(alertType: string, severity: string, message: string) {
+export async function sendAlertEmail(alertType: string, severity: string, message: string, customTargetEmail?: string) {
+    const finalEmail = customTargetEmail || targetEmail;
     if (!resend) {
         console.warn('RESEND_API_KEY is not defined. Skipping email alert.');
         return false;
     }
-    if (!targetEmail) {
-        console.warn('ALERT_TARGET_EMAIL is not defined. Skipping email alert.');
+    if (!finalEmail) {
+        console.warn('No target email defined. Skipping email alert.');
         return false;
     }
 
     try {
         const { data, error } = await resend.emails.send({
             from: 'Smart Energy Monitor <onboarding@resend.dev>', // You must verify a domain in Resend to change this
-            to: targetEmail,
+            to: finalEmail,
             subject: `🚨 ${severity} Alert: ${alertType.replace('_', ' ')} Detected`,
             html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
@@ -57,13 +58,14 @@ export async function sendAlertEmail(alertType: string, severity: string, messag
     }
 }
 
-export async function sendAlertSMS(alertType: string, severity: string, message: string) {
+export async function sendAlertSMS(alertType: string, severity: string, message: string, customTargetPhone?: string) {
+    const finalPhone = customTargetPhone || targetPhone;
     if (!twilioClient || !twilioFromPhone) {
         console.warn('Twilio credentials or phone number not defined. Skipping SMS alert.');
         return false;
     }
-    if (!targetPhone) {
-        console.warn('ALERT_TARGET_PHONE is not defined. Skipping SMS alert.');
+    if (!finalPhone) {
+        console.warn('No target phone defined. Skipping SMS alert.');
         return false;
     }
 
@@ -71,7 +73,7 @@ export async function sendAlertSMS(alertType: string, severity: string, message:
         const smsResponse = await twilioClient.messages.create({
             body: `GridSense 🚨 ${severity} ALERT: ${message}`,
             from: twilioFromPhone,
-            to: targetPhone,
+            to: finalPhone,
         });
 
         console.log('SMS alert sent successfully (SID):', smsResponse.sid);
