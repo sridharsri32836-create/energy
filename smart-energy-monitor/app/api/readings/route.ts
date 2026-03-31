@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
 import { detectSpike } from '@/lib/spikeDetector'
 import { calculateCost } from '@/lib/costCalculator'
+import { sendAlertEmail, sendAlertSMS } from '@/lib/notifications'
 
 export async function POST(req: NextRequest) {
     try {
@@ -55,6 +56,18 @@ export async function POST(req: NextRequest) {
                 timestamp: timestamp ?? new Date().toISOString(),
             }))
             await supabase.from('alerts').insert(alertInserts)
+
+            // Trigger Email & SMS Notifications non-blockingly for high severity events
+            spikes.forEach(spike => {
+                if (spike.severity === 'HIGH') {
+                    // Fire and forget so we don't delay the sensor response
+                    sendAlertEmail(spike.alertType ?? 'UNKNOWN', spike.severity, spike.message ?? '')
+                        .catch(err => console.error('Email error:', err))
+
+                    sendAlertSMS(spike.alertType ?? 'UNKNOWN', spike.severity, spike.message ?? '')
+                        .catch(err => console.error('SMS error:', err))
+                }
+            })
         }
 
         // 5. Upsert daily_usage aggregate
