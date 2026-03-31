@@ -1,0 +1,157 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+/* ─── Custom Tailwind v4 Theme ─────────────────────────────────────── */
+@theme inline {
+  /* Fonts */
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  /* Navy background palette */
+  --color-navy-950: #03071e;
+  --color-navy-900: #060c24;
+  --color-navy-800: #0a1128;
+  --color-navy-700: #0d1836;
+
+  /* Electric blue accent */
+  --color-electric-blue: #3b82f6;
+  --color-electric-blue-light: #60a5fa;
+  --color-electric-blue-dark: #2563eb;
+
+  /* Neon green accent */
+  --color-neon-green: #4ade80;
+  --color-neon-green-dark: #22c55e;
+
+  /* Alerts */
+  --color-alert-red: #ef4444;
+  --color-alert-orange: #fb923c;
+
+  /* Neutral */
+  --color-white-5: rgba(255, 255, 255, 0.05);
+  --color-white-8: rgba(255, 255, 255, 0.08);
+}
+
+/* ─── Base Styles ──────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #03071e;
+  color: #e2e8f0;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Subtle grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #060c24;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e3a5f;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
+
+/* ─── Glassmorphism utility ────────────────────────────────────────── */
+.glass {
+  background: rgba(6, 12, 36, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-hover:hover {
+  border-color: rgba(59, 130, 246, 0.25);
+  background: rgba(6, 12, 36, 0.75);
+}
+
+/* ─── Section Card ─────────────────────────────────────────────────── */
+.section-card {
+  background: rgba(6, 12, 36, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+/* ─── Glow effects ─────────────────────────────────────────────────── */
+.glow-blue {
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.15);
+}
+
+.glow-green {
+  box-shadow: 0 0 40px rgba(74, 222, 128, 0.15);
+}
+
+.glow-orange {
+  box-shadow: 0 0 40px rgba(251, 146, 60, 0.2);
+}
+
+/* ─── Custom selection ─────────────────────────────────────────────── */
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: #fff;
+}
+
+/* ─── Animation helpers ────────────────────────────────────────────── */
+@keyframes pulse-slow {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
