@@ -3,9 +3,10 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import {
-    Zap, LayoutDashboard, TrendingUp, Bell, FileText, Settings, Menu, X, Wifi, WifiOff
+    Zap, LayoutDashboard, TrendingUp, Bell, FileText, Settings, Menu, X, Wifi, WifiOff, LogOut
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { logout } from '@/app/login/actions'
 
 const navLinks = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -44,7 +45,7 @@ export function Navbar({ isOnline = false, unreadAlerts = 0 }: NavbarProps) {
                     </Link>
 
                     {/* Desktop Nav */}
-                    <div className="hidden md:flex items-center gap-1">
+                    <div className="hidden lg:flex items-center gap-1">
                         {navLinks.map(({ href, label, icon: Icon }) => {
                             const active = pathname === href
                             return (
@@ -70,7 +71,7 @@ export function Navbar({ isOnline = false, unreadAlerts = 0 }: NavbarProps) {
                     </div>
 
                     {/* Device Status */}
-                    <div className="hidden md:flex items-center gap-3">
+                    <div className="hidden lg:flex items-center gap-3">
                         <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border
               ${isOnline
                                 ? 'bg-neon-green/10 border-neon-green/30 text-neon-green'
@@ -80,12 +81,22 @@ export function Navbar({ isOnline = false, unreadAlerts = 0 }: NavbarProps) {
                             {isOnline ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
                             {isOnline ? 'Device Online' : 'Device Offline'}
                         </div>
+
+                        <form action={logout}>
+                            <button
+                                type="submit"
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
+                            >
+                                <LogOut className="w-3.5 h-3.5" />
+                                Logout
+                            </button>
+                        </form>
                     </div>
 
                     {/* Mobile menu button */}
                     <button
                         onClick={() => setMobileOpen(!mobileOpen)}
-                        className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5"
+                        className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5"
                     >
                         {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                     </button>
@@ -99,7 +110,7 @@ export function Navbar({ isOnline = false, unreadAlerts = 0 }: NavbarProps) {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="md:hidden border-t border-white/10 bg-black/40 backdrop-blur-2xl shadow-xl shadow-black/50"
+                        className="lg:hidden border-t border-white/10 bg-black/40 backdrop-blur-2xl shadow-xl shadow-black/50"
                     >
                         <div className="px-4 py-3 space-y-1">
                             {navLinks.map(({ href, label, icon: Icon }) => (
@@ -117,6 +128,16 @@ export function Navbar({ isOnline = false, unreadAlerts = 0 }: NavbarProps) {
                                     {label}
                                 </Link>
                             ))}
+                            
+                            <form action={logout} className="pt-2 border-t border-white/5">
+                                <button
+                                    type="submit"
+                                    className="w-full flex items-center gap-2 px-3 py-3 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    Logout
+                                </button>
+                            </form>
                         </div>
                     </motion.div>
                 )}
