@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
 import { Zap, Activity, Power, Battery, RefreshCw, Mail, Calendar, FileText } from 'lucide-react'
 import { Navbar } from '@/components/layout/Navbar'
@@ -19,6 +20,11 @@ import { useWebSerial } from '@/hooks/useWebSerial'
 import { getTariffRate } from '@/lib/costCalculator'
 import type { Prediction } from '@/lib/supabase'
 import toast from 'react-hot-toast'
+
+const DynamicSerialBar = dynamic(() => import('@/components/panels/WebSerialBar'), { 
+  ssr: false, 
+  loading: () => <div className="h-16 w-full animate-pulse bg-white/5 rounded-2xl border border-white/10" /> 
+})
 
 function SectionCard({
   title,
@@ -59,13 +65,7 @@ export default function DashboardPage() {
   // Preview Modal State
   const [previewData, setPreviewData] = useState<any | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
-
   const tariffRate = getTariffRate()
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
 
   // Load predictions
   useEffect(() => {
@@ -166,48 +166,8 @@ export default function DashboardPage() {
           <DeviceStatus isOnline={isConnected} lastSeen={lastSeen} />
         </div>
 
-        {/* 🔌 Web Serial Connection Bar */}
-        {isMounted && (
-          <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${isSerialConnected ? 'bg-neon-green/10 text-neon-green' : 'bg-slate-700/30 text-slate-500'}`}>
-                <Zap className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-white">Direct Hardware Connection</h3>
-                <p className="text-xs text-slate-500">
-                  {isSerialConnected ? 'ESP32 is connected via USB' : 'Connect your ESP32 directly to the browser'}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              {serialError && (
-                <span className="text-xs text-red-400 bg-red-400/10 px-2 py-1 rounded-md">
-                  {serialError}
-                </span>
-              )}
-              
-              <button
-                onClick={isSerialConnected ? disconnectSerial : connectSerial}
-                disabled={isConnecting}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  isSerialConnected 
-                    ? 'bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20' 
-                    : 'bg-neon-green/10 border border-neon-green/30 text-neon-green hover:bg-neon-green/20'
-                }`}
-              >
-                {isConnecting ? (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                ) : isSerialConnected ? (
-                  <>Disconnect ESP32</>
-                ) : (
-                  <>⚡ Connect Hardware (USB)</>
-                )}
-              </button>
-            </div>
-          </div>
-        )}
+        {/* 🔌 Web Serial Connection Bar (Client-only) */}
+        <DynamicSerialBar />
 
         {/* ─── Section 1: Metric Cards ─── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
