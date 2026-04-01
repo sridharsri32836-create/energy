@@ -20,11 +20,7 @@ import { useWebSerial } from '@/hooks/useWebSerial'
 import { getTariffRate } from '@/lib/costCalculator'
 import type { Prediction } from '@/lib/supabase'
 import toast from 'react-hot-toast'
-
-const DynamicSerialBar = dynamic(() => import('@/components/panels/WebSerialBar'), { 
-  ssr: false, 
-  loading: () => <div className="h-16 w-full animate-pulse bg-white/5 rounded-2xl border border-white/10" /> 
-})
+import WebSerialBar from '@/components/panels/WebSerialBar'
 
 function SectionCard({
   title,
@@ -65,7 +61,13 @@ export default function DashboardPage() {
   // Preview Modal State
   const [previewData, setPreviewData] = useState<any | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+  
   const tariffRate = getTariffRate()
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   // Load predictions
   useEffect(() => {
@@ -167,7 +169,7 @@ export default function DashboardPage() {
         </div>
 
         {/* 🔌 Web Serial Connection Bar (Client-only) */}
-        <DynamicSerialBar />
+        {isClient && <WebSerialBar />}
 
         {/* ─── Section 1: Metric Cards ─── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

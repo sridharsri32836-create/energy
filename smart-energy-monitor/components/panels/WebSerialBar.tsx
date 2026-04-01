@@ -1,6 +1,4 @@
 'use client'
-import { motion } from 'framer-motion'
-import { Zap, RefreshCw } from 'lucide-react'
 import { useWebSerial } from '@/hooks/useWebSerial'
 
 export default function WebSerialBar() {
@@ -11,36 +9,44 @@ export default function WebSerialBar() {
 
     if (!isSupported) {
         return (
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-red-500/5 border border-red-500/10 backdrop-blur-md">
-                <div className="flex items-center gap-3 text-red-400">
-                    <Zap className="w-5 h-5 opacity-50" />
-                    <span className="text-xs">Web Serial is not supported in this browser. Use Chrome/Edge.</span>
-                </div>
+            <div style={{ padding: '1rem', borderRadius: '1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', marginBottom: '1rem' }}>
+                <span style={{ color: '#f87171', fontSize: '0.75rem' }}>Web Serial is not supported in this browser. Use Chrome/Edge.</span>
             </div>
         )
     }
 
     return (
-        <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md"
-        >
-            <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${isSerialConnected ? 'bg-neon-green/10 text-neon-green' : 'bg-slate-700/30 text-slate-500'}`}>
-                    <Zap className="w-5 h-5" />
+        <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            padding: '1rem', 
+            borderRadius: '1rem', 
+            background: 'rgba(255, 255, 255, 0.05)', 
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(12px)',
+            marginBottom: '1rem'
+        }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{ 
+                    padding: '0.5rem', 
+                    borderRadius: '0.5rem', 
+                    background: isSerialConnected ? 'rgba(0, 255, 149, 0.1)' : 'rgba(51, 65, 85, 0.3)',
+                    color: isSerialConnected ? '#00ff95' : '#64748b'
+                }}>
+                    ⚡
                 </div>
                 <div>
-                    <h3 className="text-sm font-semibold text-white">Direct Hardware Connection</h3>
-                    <p className="text-xs text-slate-500">
+                    <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'white', margin: 0 }}>Direct Hardware Connection</h3>
+                    <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0 }}>
                         {isSerialConnected ? 'ESP32 is connected via USB' : 'Connect your ESP32 directly to the browser (USB)'}
                     </p>
                 </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 {serialError && (
-                    <span className="text-xs text-red-400 bg-red-400/10 px-2 py-1 rounded-md">
+                    <span style={{ fontSize: '0.75rem', color: '#f87171', background: 'rgba(248, 113, 113, 0.1)', padding: '0.25rem 0.5rem', borderRadius: '0.375rem' }}>
                         {serialError}
                     </span>
                 )}
@@ -48,21 +54,21 @@ export default function WebSerialBar() {
                 <button
                     onClick={isSerialConnected ? disconnectSerial : connectSerial}
                     disabled={isConnecting}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                        isSerialConnected 
-                            ? 'bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20' 
-                            : 'bg-neon-green/10 border border-neon-green/30 text-neon-green hover:bg-neon-green/20'
-                    }`}
+                    style={{
+                        padding: '0.5rem 1rem',
+                        borderRadius: '0.75rem',
+                        fontSize: '0.75rem',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        background: isSerialConnected ? 'rgba(239, 68, 68, 0.1)' : 'rgba(0, 255, 149, 0.1)',
+                        border: isSerialConnected ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(0, 255, 149, 0.3)',
+                        color: isSerialConnected ? '#f87171' : '#00ff95'
+                    }}
                 >
-                    {isConnecting ? (
-                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    ) : isSerialConnected ? (
-                        <>Disconnect ESP32</>
-                    ) : (
-                        <>⚡ Connect Hardware</>
-                    )}
+                    {isConnecting ? 'Connecting...' : isSerialConnected ? 'Disconnect ESP32' : '⚡ Connect Hardware'}
                 </button>
             </div>
-        </motion.div>
+        </div>
     )
 }
