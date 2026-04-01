@@ -100,7 +100,13 @@ export default function EnergyPage() {
                     <div className="flex items-center justify-between mb-5">
                         <h2 className="text-base font-semibold text-slate-200">Daily Usage Table</h2>
                         <button
-                            onClick={resetData}
+                            onClick={() => {
+                                if (window.confirm('Are you sure you want to reset the daily usage table?')) {
+                                    const pw = window.prompt('Enter Security Password to confirm:');
+                                    if (pw === '777') resetData();
+                                    else if (pw !== null) alert('Incorrect password');
+                                }
+                            }}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/8 text-slate-400 hover:text-white text-xs font-medium transition-all duration-150"
                             title="Reset daily usage table"
                         >
@@ -144,7 +150,11 @@ export default function EnergyPage() {
                     <div className="flex items-center justify-between mb-5">
                         <h2 className="text-base font-semibold text-slate-200">Latest Live Readings</h2>
                         <button
-                            onClick={resetReadings}
+                            onClick={() => {
+                                const pw = window.prompt('Enter Security Password to reset live readings:');
+                                if (pw === '777') resetReadings();
+                                else if (pw !== null) alert('Incorrect password');
+                            }}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/8 text-slate-400 hover:text-white text-xs font-medium transition-all duration-150"
                             title="Reset live readings"
                         >

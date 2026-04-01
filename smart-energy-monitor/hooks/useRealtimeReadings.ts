@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { supabase, type MeterReading } from '@/lib/supabase'
 
 // Device is considered offline if no reading arrives within this window
-const OFFLINE_TIMEOUT_MS = 30_000 // 30 seconds
+const OFFLINE_TIMEOUT_MS = 10_000 // 10 seconds
 
 export function useRealtimeReadings(initialLimit = 60) {
     const [readings, setReadings] = useState<MeterReading[]>([])

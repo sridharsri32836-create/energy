@@ -23,17 +23,20 @@ export function useWebSerial() {
             try {
                 const ports = await (navigator as any).serial.getPorts()
                 if (ports.length > 0) {
-                    // Try the first authorized port
-                    console.log('🔌 Found previously authorized port, attempting to open...')
-                    // We don't automatically open it because it might block other apps,
-                    // but we can at least show it as "Available" or just open if the user wants.
-                    // For now, let's wait for a user click to avoid intrusive serial port hijacking.
+                    console.log('🔌 Found authorized port, auto-connecting...')
+                    const p = ports[0]
+                    await p.open({ baudRate: 115200 })
+                    setPort(p)
+                    setIsSerialConnected(true)
+                    readLoop(p)
                 }
             } catch (err) {
-                console.error('Error listing ports:', err)
+                console.error('Auto-connect failed:', err)
             }
         }
-        attemptAutoConnect()
+        // Small delay to ensure navigator.serial is ready
+        const timer = setTimeout(attemptAutoConnect, 1000)
+        return () => clearTimeout(timer)
     }, [])
 
     const connectSerial = async () => {
@@ -75,6 +78,8 @@ export function useWebSerial() {
                 setPort(null)
             }
             setIsSerialConnected(false)
+            // Zero out when manually disconnected
+            syncToBackend({ voltage: 0, current: 0, power: 0, energy: 0 })
         } catch (err) {
             console.error('Disconnect failed:', err)
         }
@@ -135,6 +140,8 @@ export function useWebSerial() {
         } finally {
             reader.releaseLock()
             setIsSerialConnected(false)
+            // Zero out when connection is lost
+            syncToBackend({ voltage: 0, current: 0, power: 0, energy: 0 })
         }
     }
 

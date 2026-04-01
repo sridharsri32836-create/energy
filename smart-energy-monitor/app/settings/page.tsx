@@ -241,7 +241,11 @@ export default function SettingsPage() {
                                 Save Settings
                             </button>
                             <button
-                                onClick={resetDefaults}
+                                onClick={() => {
+                                    const pw = window.prompt('Enter Security Password to reset defaults:');
+                                    if (pw === '777') resetDefaults();
+                                    else if (pw !== null) alert('Incorrect password');
+                                }}
                                 className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 text-sm hover:text-slate-200 hover:bg-white/8 transition-all"
                             >
                                 Reset Defaults
