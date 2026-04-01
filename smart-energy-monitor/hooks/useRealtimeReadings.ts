@@ -20,6 +20,7 @@ export function useRealtimeReadings(initialLimit = 60) {
         if (offlineTimerRef.current) clearTimeout(offlineTimerRef.current)
         offlineTimerRef.current = setTimeout(() => {
             setIsConnected(false)
+            setLatestReading(null) // NEW: Clear stale data when offline
         }, OFFLINE_TIMEOUT_MS)
     }
 

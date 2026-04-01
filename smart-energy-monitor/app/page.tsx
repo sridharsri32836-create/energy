@@ -15,6 +15,7 @@ import { ReportPreviewModal } from '@/components/modals/ReportPreviewModal'
 import { useRealtimeReadings } from '@/hooks/useRealtimeReadings'
 import { useAlerts } from '@/hooks/useAlerts'
 import { useDailyUsage } from '@/hooks/useDailyUsage'
+import { useWebSerial } from '@/hooks/useWebSerial'
 import { getTariffRate } from '@/lib/costCalculator'
 import type { Prediction } from '@/lib/supabase'
 import toast from 'react-hot-toast'
@@ -50,6 +51,8 @@ export default function DashboardPage() {
   const { readings, latestReading, isConnected, lastSeen } = useRealtimeReadings(60)
   const { alerts, unreadCount, markAsRead, markAllRead } = useAlerts()
   const { data: dailyUsage, loading: dailyLoading } = useDailyUsage(30)
+  const { connectSerial, disconnectSerial, isSerialConnected, isConnecting, serialError } = useWebSerial()
+  
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [generatingPredictions, setGeneratingPredictions] = useState(false)
   
@@ -158,6 +161,51 @@ export default function DashboardPage() {
           <DeviceStatus isOnline={isConnected} lastSeen={lastSeen} />
         </div>
 
+        {/* 🔌 Web Serial Connection Bar */}
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md"
+        >
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${isSerialConnected ? 'bg-neon-green/10 text-neon-green' : 'bg-slate-700/30 text-slate-500'}`}>
+              <Zap className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-white">Direct Hardware Connection</h3>
+              <p className="text-xs text-slate-500">
+                {isSerialConnected ? 'ESP32 is connected via USB' : 'Connect your ESP32 directly to the browser'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {serialError && (
+              <span className="text-xs text-red-400 bg-red-400/10 px-2 py-1 rounded-md">
+                {serialError}
+              </span>
+            )}
+            
+            <button
+              onClick={isSerialConnected ? disconnectSerial : connectSerial}
+              disabled={isConnecting}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                isSerialConnected 
+                  ? 'bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20' 
+                  : 'bg-neon-green/10 border border-neon-green/30 text-neon-green hover:bg-neon-green/20'
+              }`}
+            >
+              {isConnecting ? (
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              ) : isSerialConnected ? (
+                <>Disconnect ESP32</>
+              ) : (
+                <>⚡ Connect Hardware (USB)</>
+              )}
+            </button>
+          </div>
+        </motion.div>
+
         {/* ─── Section 1: Metric Cards ─── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
@@ -188,7 +236,7 @@ export default function DashboardPage() {
             icon={Power}
             glowColor="orange"
             trend={powerTrend}
-            trendValue={powerTrend !== 'stable' ? `${Math.abs(((latest?.power ?? 0) - prevPower) / (prevPower || 1) * 100).toFixed(0)}%` : undefined}
+            trendValue={powerTrend !== 'stable' && latest ? `${Math.abs((latest.power - prevPower) / (prevPower || 1) * 100).toFixed(0)}%` : undefined}
             subLabel="Active power"
             delay={0.2}
           />
