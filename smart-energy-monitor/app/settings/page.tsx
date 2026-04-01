@@ -248,14 +248,20 @@ export default function SettingsPage() {
                             </button>
                         </div>
 
-                        {/* Logout Form at the very bottom */}
-                        <div className="pt-8 mt-8 border-t border-white/5">
+                        {/* Logout Section at the very bottom */}
+                        <div className="pt-12 mt-12 border-t border-white/10">
                             <form action={logout}>
-                                <button type="submit" className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-red-500/10 text-red-500 font-semibold hover:bg-red-500/20 border border-red-500/20 transition-all">
-                                    <LogOut className="w-5 h-5" />
-                                    Log Out
+                                <button 
+                                    type="submit" 
+                                    className="w-full flex items-center justify-center gap-3 py-4 rounded-xl bg-red-500/10 text-red-500 font-bold hover:bg-red-500/20 border border-red-500/20 transition-all shadow-lg shadow-red-500/5 group"
+                                >
+                                    <LogOut className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
+                                    Sign Out of GridSense
                                 </button>
                             </form>
+                            <p className="text-center text-slate-600 text-xs mt-4">
+                                Version 1.0.4 • Secure Session
+                            </p>
                         </div>
                     </>
                 )}

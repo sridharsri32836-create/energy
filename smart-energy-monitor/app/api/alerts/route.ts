@@ -25,3 +25,19 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: message }, { status: 500 })
     }
 }
+
+export async function DELETE() {
+    try {
+        const supabase = createServiceClient()
+        const { error } = await supabase
+            .from('alerts')
+            .delete()
+            .neq('id', '00000000-0000-0000-0000-000000000000')
+
+        if (error) throw error
+        return NextResponse.json({ success: true })
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Internal error'
+        return NextResponse.json({ error: message }, { status: 500 })
+    }
+}

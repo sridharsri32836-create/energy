@@ -56,6 +56,20 @@ export function useAlerts() {
         setAlerts((prev) => prev.map((a) => ({ ...a, is_read: true })))
         setUnreadCount(0)
     }
+    async function deleteAlert(id: string) {
+        await fetch(`/api/alerts/${id}`, { method: 'DELETE' })
+        setAlerts((prev) => prev.filter((a) => a.id !== id))
+        setUnreadCount((prevCount) => {
+            const isUnread = alerts.find(a => a.id === id && !a.is_read)
+            return isUnread ? Math.max(0, prevCount - 1) : prevCount
+        })
+    }
 
-    return { alerts, unreadCount, markAsRead, markAllRead }
+    async function deleteAllAlerts() {
+        await fetch('/api/alerts', { method: 'DELETE' })
+        setAlerts([])
+        setUnreadCount(0)
+    }
+
+    return { alerts, unreadCount, markAsRead, markAllRead, deleteAlert, deleteAllAlerts }
 }

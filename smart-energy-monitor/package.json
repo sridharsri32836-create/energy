@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "concurrently --kill-others \"next dev\" \"node scripts/serial-bridge.js COM3\"",
+    "dev:next": "next dev",
+    "dev:bridge": "node scripts/serial-bridge.js COM3",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -14,6 +16,7 @@
     "bcryptjs": "^3.0.3",
     "chart.js": "^4.5.1",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.3.1",
     "framer-motion": "^12.36.0",
     "jose": "^6.2.2",
     "jspdf": "^4.2.0",
@@ -34,6 +37,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^9.2.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",

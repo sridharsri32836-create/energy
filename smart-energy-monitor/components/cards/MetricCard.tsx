@@ -72,7 +72,7 @@ export function MetricCard({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay }}
             whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-            className={`relative overflow-hidden rounded-2xl border bg-white/5 backdrop-blur-md shadow-lg shadow-black/20 hover:bg-white/10 p-6 cursor-default transition-all duration-300 ${colors.border}`}
+            className={`relative overflow-hidden rounded-2xl border bg-white/5 backdrop-blur-md shadow-lg shadow-black/20 hover:bg-white/10 p-4 sm:p-6 cursor-default transition-all duration-300 ${colors.border}`}
             style={{ boxShadow: colors.shadow }}
         >
             {/* Background gradient glow */}
@@ -106,9 +106,13 @@ export function MetricCard({
                         key={String(value)}
                         initial={{ opacity: 0.5, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`text-3xl font-bold tracking-tight ${colors.valueBg}`}
+                        className={`text-2xl sm:text-3xl font-bold tracking-tight ${colors.valueBg}`}
                     >
-                        {typeof value === 'number' ? value.toFixed(value < 10 ? 2 : 1) : value}
+                        {typeof value === 'number' ? 
+                            (unit === 'V' ? value.toFixed(1) : 
+                             unit === 'A' ? value.toFixed(2) : 
+                             value.toFixed(1)) 
+                            : value}
                     </motion.span>
                     <span className="text-slate-400 text-sm mb-1">{unit}</span>
                 </div>

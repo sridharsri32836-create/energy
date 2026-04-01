@@ -1,6 +1,6 @@
 'use client'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertTriangle, Zap, Activity, X, CheckCircle } from 'lucide-react'
+import { AlertTriangle, Zap, Activity, X, CheckCircle, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import type { Alert } from '@/lib/supabase'
 
@@ -42,10 +42,11 @@ function getSeverity(alert: Alert): { label: string; cls: string } {
 interface AlertCardProps {
     alert: Alert
     onDismiss?: (id: string) => void
+    onDelete?: (id: string) => void
     compact?: boolean
 }
 
-export function AlertCard({ alert, onDismiss, compact = false }: AlertCardProps) {
+export function AlertCard({ alert, onDismiss, onDelete, compact = false }: AlertCardProps) {
     const config = alertConfig[alert.alert_type] ?? alertConfig.ANOMALY
     const Icon = config.icon
 
@@ -94,18 +95,30 @@ export function AlertCard({ alert, onDismiss, compact = false }: AlertCardProps)
                         </p>
                     )}
                 </div>
-                {onDismiss && (
-                    <button
-                        onClick={() => onDismiss(alert.id)}
-                        className="flex-shrink-0 p-1 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-colors"
-                    >
-                        {alert.is_read ? (
-                            <CheckCircle className="w-4 h-4 text-neon-green/60" />
-                        ) : (
-                            <X className="w-4 h-4" />
-                        )}
-                    </button>
-                )}
+                <div className="flex flex-col gap-1 items-center">
+                    {onDismiss && (
+                        <button
+                            onClick={() => onDismiss(alert.id)}
+                            className="flex-shrink-0 p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-colors"
+                            title={alert.is_read ? "Marked as read" : "Mark as read"}
+                        >
+                            {alert.is_read ? (
+                                <CheckCircle className="w-4 h-4 text-neon-green/60" />
+                            ) : (
+                                <CheckCircle className="w-4 h-4" />
+                            )}
+                        </button>
+                    )}
+                    {onDelete && (
+                        <button
+                            onClick={() => onDelete(alert.id)}
+                            className="flex-shrink-0 p-1.5 rounded-lg text-slate-500 hover:text-alert-red hover:bg-alert-red/10 transition-colors"
+                            title="Delete alert"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
+                </div>
             </div>
         </motion.div>
     )
@@ -114,10 +127,11 @@ export function AlertCard({ alert, onDismiss, compact = false }: AlertCardProps)
 interface AlertsPanelProps {
     alerts: Alert[]
     onDismiss?: (id: string) => void
+    onDelete?: (id: string) => void
     maxItems?: number
 }
 
-export function AlertsPanel({ alerts, onDismiss, maxItems = 5 }: AlertsPanelProps) {
+export function AlertsPanel({ alerts, onDismiss, onDelete, maxItems = 5 }: AlertsPanelProps) {
     const visible = alerts.slice(0, maxItems)
 
     if (visible.length === 0) {
@@ -133,7 +147,7 @@ export function AlertsPanel({ alerts, onDismiss, maxItems = 5 }: AlertsPanelProp
         <div className="space-y-3">
             <AnimatePresence>
                 {visible.map((alert) => (
-                    <AlertCard key={alert.id} alert={alert} onDismiss={onDismiss} />
+                    <AlertCard key={alert.id} alert={alert} onDismiss={onDismiss} onDelete={onDelete} />
                 ))}
             </AnimatePresence>
         </div>
