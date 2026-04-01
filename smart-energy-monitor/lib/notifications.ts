@@ -2,11 +2,12 @@ import { Resend } from 'resend';
 import twilio from 'twilio';
 
 // Initialize Services
-export const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+export const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY.trim()) : null;
 
-export const twilioClient = (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)
-    ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
-    : null;
+const sid = process.env.TWILIO_ACCOUNT_SID?.trim();
+const token = process.env.TWILIO_AUTH_TOKEN?.trim();
+
+export const twilioClient = (sid && token) ? twilio(sid, token) : null;
 
 // Ensure we have targets
 const targetEmail = process.env.ALERT_TARGET_EMAIL;
