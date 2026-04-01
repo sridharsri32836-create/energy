@@ -20,6 +20,8 @@ import { getTariffRate } from '@/lib/costCalculator'
 import type { Prediction } from '@/lib/supabase'
 import toast from 'react-hot-toast'
 
+const WebSerialBar = dynamic(() => import('@/components/panels/WebSerialBar'), { ssr: false })
+
 function SectionCard({
   title,
   children,
@@ -164,6 +166,8 @@ export default function DashboardPage() {
           </div>
           <DeviceStatus isOnline={isConnected} lastSeen={lastSeen} />
         </div>
+
+        <WebSerialBar />
 
         {/* ─── Section 1: Metric Cards ─── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

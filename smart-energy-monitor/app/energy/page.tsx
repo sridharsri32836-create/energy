@@ -10,6 +10,9 @@ import { useRealtimeReadings } from '@/hooks/useRealtimeReadings'
 import { format, parseISO } from 'date-fns'
 import { formatCost, getTariffRate } from '@/lib/costCalculator'
 import { PasswordModal } from '@/components/modals/PasswordModal'
+import dynamic from 'next/dynamic'
+
+const WebSerialBar = dynamic(() => import('@/components/panels/WebSerialBar'), { ssr: false })
 
 export default function EnergyPage() {
     const { data: dailyUsage, loading, resetData } = useDailyUsage(30)
@@ -58,6 +61,8 @@ export default function EnergyPage() {
                         </div>
                     </div>
                 </div>
+
+                <WebSerialBar />
 
                 {/* Summary stats */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
