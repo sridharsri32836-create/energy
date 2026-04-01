@@ -77,11 +77,11 @@ export async function sendAlertSMS(alertType: string, severity: string, message:
     const finalPhone = normalizePhoneNumber(customTargetPhone || targetPhone || '');
     if (!twilioClient || !twilioFromPhone) {
         console.warn(`${twilioLogPrefix} Credentials or phone number not defined. Skipping SMS alert.`);
-        return false;
+        return { success: false, error: { message: 'Credentials or phone number not defined' } };
     }
     if (!finalPhone || finalPhone === '+') {
         console.warn(`${twilioLogPrefix} No valid target phone defined. Skipping SMS alert.`);
-        return false;
+        return { success: false, error: { message: 'No valid target phone defined' } };
     }
 
     try {
@@ -93,16 +93,17 @@ export async function sendAlertSMS(alertType: string, severity: string, message:
         });
 
         console.log(`${twilioLogPrefix} Success! SID: ${smsResponse.sid}`);
-        return true;
+        return { success: true, sid: smsResponse.sid };
     } catch (err: any) {
-        console.error(`${twilioLogPrefix} CRITICAL FAILURE:`, {
+        const errorDetails = {
             message: err.message,
             code: err.code,
             status: err.status,
             moreInfo: err.moreInfo,
             target: finalPhone
-        });
-        return false;
+        };
+        console.error(`${twilioLogPrefix} CRITICAL FAILURE:`, errorDetails);
+        return { success: false, error: errorDetails };
     }
 }
 export async function sendUsageReport(type: 'DAILY' | 'WEEKLY' | 'MONTHLY', reportData: {
