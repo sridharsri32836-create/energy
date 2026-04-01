@@ -13,31 +13,13 @@ export function useWebSerial() {
     const [isSerialConnected, setIsSerialConnected] = useState(false)
     const [serialError, setSerialError] = useState<string | null>(null)
     const [isConnecting, setIsConnecting] = useState(false)
+    
+    const portRef = useRef<any | null>(null)
     const readerRef = useRef<ReadableStreamDefaultReader | null>(null)
+    const closedPromiseRef = useRef<Promise<void> | null>(null)
 
-    // Attempt to auto-reconnect if permissions were already granted
-    useEffect(() => {
-        const attemptAutoConnect = async () => {
-            if (!('serial' in navigator)) return
-            
-            try {
-                const ports = await (navigator as any).serial.getPorts()
-                if (ports.length > 0) {
-                    console.log('🔌 Found authorized port, auto-connecting...')
-                    const p = ports[0]
-                    await p.open({ baudRate: 115200 })
-                    setPort(p)
-                    setIsSerialConnected(true)
-                    readLoop(p)
-                }
-            } catch (err) {
-                console.error('Auto-connect failed:', err)
-            }
-        }
-        // Small delay to ensure navigator.serial is ready
-        const timer = setTimeout(attemptAutoConnect, 1000)
-        return () => clearTimeout(timer)
-    }, [])
+    // Auto-connect removed to prevent locking the COM port from Arduino IDE.
+    // The user must manually click "Connect Hardware" to initiate the connection.
 
     const connectSerial = async () => {
         if (!('serial' in navigator)) {
@@ -53,8 +35,14 @@ export function useWebSerial() {
             const selectedPort = await (navigator as any).serial.requestPort()
             
             // 2. Open the port
-            await selectedPort.open({ baudRate: 115200 })
+            try {
+                await selectedPort.open({ baudRate: 115200 })
+            } catch (e: any) {
+                 if (!e.message?.includes('already open') && e.name !== 'InvalidStateError') throw e
+            }
+            
             setPort(selectedPort)
+            portRef.current = selectedPort
             setIsSerialConnected(true)
             setIsConnecting(false)
 
@@ -73,8 +61,13 @@ export function useWebSerial() {
                 await readerRef.current.cancel()
                 readerRef.current = null
             }
-            if (port) {
-                await port.close()
+            if (closedPromiseRef.current) {
+                await closedPromiseRef.current.catch(() => {})
+                closedPromiseRef.current = null
+            }
+            if (portRef.current) {
+                await portRef.current.close()
+                portRef.current = null
                 setPort(null)
             }
             setIsSerialConnected(false)
@@ -86,15 +79,17 @@ export function useWebSerial() {
     }
 
     const readLoop = async (activePort: any) => {
-        const textDecoder = new TextDecoderStream()
-        const readableStreamClosed = activePort.readable!.pipeTo(textDecoder.writable)
-        const reader = textDecoder.readable.getReader()
-        readerRef.current = reader
-
-        let buffer = ''
-        let currentData: Partial<WebSerialData> = {}
-
         try {
+            const textDecoder = new TextDecoderStream()
+            const readableStreamClosed = activePort.readable!.pipeTo(textDecoder.writable)
+            closedPromiseRef.current = readableStreamClosed
+            
+            const reader = textDecoder.readable.getReader()
+            readerRef.current = reader
+
+            let buffer = ''
+            let currentData: Partial<WebSerialData> = {}
+
             while (true) {
                 const { value, done } = await reader.read()
                 if (done) break
@@ -138,7 +133,9 @@ export function useWebSerial() {
         } catch (err) {
             console.error('Serial read error:', err)
         } finally {
-            reader.releaseLock()
+            if (readerRef.current) {
+                readerRef.current.releaseLock()
+            }
             setIsSerialConnected(false)
             // Zero out when connection is lost
             syncToBackend({ voltage: 0, current: 0, power: 0, energy: 0 })

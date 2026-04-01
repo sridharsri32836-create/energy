@@ -6,6 +6,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import { AlertCard } from '@/components/alerts/AlertCard'
 import { useAlerts } from '@/hooks/useAlerts'
 import { useRealtimeReadings } from '@/hooks/useRealtimeReadings'
+import { PasswordModal } from '@/components/modals/PasswordModal'
 
 type FilterType = 'ALL' | 'VOLTAGE_SPIKE' | 'CURRENT_SURGE' | 'ANOMALY'
 
@@ -13,6 +14,7 @@ export default function AlertsPage() {
     const { alerts, unreadCount, markAsRead, markAllRead, deleteAlert, deleteAllAlerts } = useAlerts()
     const { isConnected } = useRealtimeReadings(5)
     const [filter, setFilter] = useState<FilterType>('ALL')
+    const [pwModalOpen, setPwModalOpen] = useState(false)
 
     const filtered = filter === 'ALL' ? alerts : alerts.filter(a => a.alert_type === filter)
 
@@ -56,7 +58,7 @@ export default function AlertsPage() {
                         )}
                         {alerts.length > 0 && (
                             <button
-                                onClick={deleteAllAlerts}
+                                onClick={() => setPwModalOpen(true)}
                                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-alert-red/10 border border-alert-red/20 text-alert-red text-sm font-medium hover:bg-alert-red/15 transition-all"
                             >
                                 <Trash2 className="w-4 h-4" />
@@ -105,6 +107,15 @@ export default function AlertsPage() {
                 </motion.div>
 
             </main>
+
+            {/* Password Modal */}
+            <PasswordModal
+                isOpen={pwModalOpen}
+                onClose={() => setPwModalOpen(false)}
+                onSuccess={deleteAllAlerts}
+                title="Clear All Alerts"
+                description="Enter PIN to permanently delete all alerts. This cannot be undone."
+            />
         </div>
     )
 }

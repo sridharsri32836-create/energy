@@ -9,6 +9,7 @@ import { useAlerts } from '@/hooks/useAlerts'
 import { useRealtimeReadings } from '@/hooks/useRealtimeReadings'
 import { format, parseISO } from 'date-fns'
 import { formatCost, getTariffRate } from '@/lib/costCalculator'
+import { PasswordModal } from '@/components/modals/PasswordModal'
 
 export default function EnergyPage() {
     const { data: dailyUsage, loading, resetData } = useDailyUsage(30)
@@ -17,10 +18,18 @@ export default function EnergyPage() {
     const [filterDays, setFilterDays] = useState(30)
     const tariffRate = getTariffRate()
 
+    // Password modal state
+    const [pwModal, setPwModal] = useState<{ open: boolean; action: 'daily' | 'live' | null }>({ open: false, action: null })
+
     const filtered = dailyUsage.slice(-filterDays)
     const totalKwh = filtered.reduce((s, d) => s + d.total_energy_kwh, 0)
     const totalCost = filtered.reduce((s, d) => s + d.estimated_cost, 0)
     const avgDaily = filtered.length ? totalKwh / filtered.length : 0
+
+    function handlePasswordSuccess() {
+        if (pwModal.action === 'daily') resetData()
+        if (pwModal.action === 'live') resetReadings()
+    }
 
     return (
         <div className="min-h-screen">
@@ -100,13 +109,7 @@ export default function EnergyPage() {
                     <div className="flex items-center justify-between mb-5">
                         <h2 className="text-base font-semibold text-slate-200">Daily Usage Table</h2>
                         <button
-                            onClick={() => {
-                                if (window.confirm('Are you sure you want to reset the daily usage table?')) {
-                                    const pw = window.prompt('Enter Security Password to confirm:');
-                                    if (pw === '777') resetData();
-                                    else if (pw !== null) alert('Incorrect password');
-                                }
-                            }}
+                            onClick={() => setPwModal({ open: true, action: 'daily' })}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/8 text-slate-400 hover:text-white text-xs font-medium transition-all duration-150"
                             title="Reset daily usage table"
                         >
@@ -150,11 +153,7 @@ export default function EnergyPage() {
                     <div className="flex items-center justify-between mb-5">
                         <h2 className="text-base font-semibold text-slate-200">Latest Live Readings</h2>
                         <button
-                            onClick={() => {
-                                const pw = window.prompt('Enter Security Password to reset live readings:');
-                                if (pw === '777') resetReadings();
-                                else if (pw !== null) alert('Incorrect password');
-                            }}
+                            onClick={() => setPwModal({ open: true, action: 'live' })}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/8 text-slate-400 hover:text-white text-xs font-medium transition-all duration-150"
                             title="Reset live readings"
                         >
@@ -198,6 +197,15 @@ export default function EnergyPage() {
                     )}
                 </motion.div>
             </main>
+
+            {/* Password Modal */}
+            <PasswordModal
+                isOpen={pwModal.open}
+                onClose={() => setPwModal({ open: false, action: null })}
+                onSuccess={handlePasswordSuccess}
+                title={pwModal.action === 'daily' ? 'Reset Daily Usage' : 'Reset Live Readings'}
+                description={`Enter PIN to reset ${pwModal.action === 'daily' ? 'daily usage table' : 'live readings'}. This cannot be undone.`}
+            />
         </div>
     )
 }

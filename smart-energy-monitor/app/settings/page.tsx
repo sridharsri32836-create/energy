@@ -10,6 +10,7 @@ import { DEFAULTS as SPIKE_DEFAULTS } from '@/lib/spikeDetector'
 import toast from 'react-hot-toast'
 import { createClient } from '@/lib/supabase/client'
 import { logout } from '@/app/login/actions'
+import { PasswordModal } from '@/components/modals/PasswordModal'
 
 export default function SettingsPage() {
     const { unreadCount } = useAlerts()
@@ -28,6 +29,7 @@ export default function SettingsPage() {
     const [userId, setUserId] = useState<string | null>(null)
 
     const [loaded, setLoaded] = useState(false)
+    const [pwModalOpen, setPwModalOpen] = useState(false)
 
     useEffect(() => {
         setTariff(getTariffRate())
@@ -241,11 +243,7 @@ export default function SettingsPage() {
                                 Save Settings
                             </button>
                             <button
-                                onClick={() => {
-                                    const pw = window.prompt('Enter Security Password to reset defaults:');
-                                    if (pw === '777') resetDefaults();
-                                    else if (pw !== null) alert('Incorrect password');
-                                }}
+                                onClick={() => setPwModalOpen(true)}
                                 className="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-400 text-sm hover:text-slate-200 hover:bg-white/8 transition-all"
                             >
                                 Reset Defaults
@@ -271,6 +269,15 @@ export default function SettingsPage() {
                 )}
 
             </main>
+
+            {/* Password Modal */}
+            <PasswordModal
+                isOpen={pwModalOpen}
+                onClose={() => setPwModalOpen(false)}
+                onSuccess={resetDefaults}
+                title="Reset Defaults"
+                description="Enter PIN to reset settings to default values."
+            />
         </div>
     )
 }

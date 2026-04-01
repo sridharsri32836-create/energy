@@ -16,11 +16,9 @@ import { ReportPreviewModal } from '@/components/modals/ReportPreviewModal'
 import { useRealtimeReadings } from '@/hooks/useRealtimeReadings'
 import { useAlerts } from '@/hooks/useAlerts'
 import { useDailyUsage } from '@/hooks/useDailyUsage'
-import { useWebSerial } from '@/hooks/useWebSerial'
 import { getTariffRate } from '@/lib/costCalculator'
 import type { Prediction } from '@/lib/supabase'
 import toast from 'react-hot-toast'
-import WebSerialBar from '@/components/panels/WebSerialBar'
 
 function SectionCard({
   title,
@@ -53,7 +51,6 @@ export default function DashboardPage() {
   const { readings, latestReading, isConnected, lastSeen } = useRealtimeReadings(60)
   const { alerts, unreadCount, markAsRead, markAllRead } = useAlerts()
   const { data: dailyUsage, loading: dailyLoading } = useDailyUsage(30)
-  const { connectSerial, disconnectSerial, isSerialConnected, isConnecting, serialError } = useWebSerial()
   
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [generatingPredictions, setGeneratingPredictions] = useState(false)
@@ -167,9 +164,6 @@ export default function DashboardPage() {
           </div>
           <DeviceStatus isOnline={isConnected} lastSeen={lastSeen} />
         </div>
-
-        {/* 🔌 Web Serial Connection Bar (Client-only) */}
-        {isClient && <WebSerialBar />}
 
         {/* ─── Section 1: Metric Cards ─── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

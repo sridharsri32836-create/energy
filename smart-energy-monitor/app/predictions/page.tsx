@@ -11,6 +11,7 @@ import { formatCost, getTariffRate } from '@/lib/costCalculator'
 import { format, parseISO } from 'date-fns'
 import type { Prediction } from '@/lib/supabase'
 import toast from 'react-hot-toast'
+import { PasswordModal } from '@/components/modals/PasswordModal'
 
 export default function PredictionsPage() {
     const { data: dailyUsage } = useDailyUsage(30)
@@ -18,6 +19,7 @@ export default function PredictionsPage() {
     const { isConnected } = useRealtimeReadings(5)
     const [predictions, setPredictions] = useState<Prediction[]>([])
     const [loading, setLoading] = useState(false)
+    const [pwModalOpen, setPwModalOpen] = useState(false)
     const tariffRate = getTariffRate()
 
     useEffect(() => {
@@ -41,7 +43,7 @@ export default function PredictionsPage() {
         } finally { setLoading(false) }
     }
 
-    async function resetPredictions() {
+    async function doPredictionsReset() {
         await fetch('/api/predictions', { method: 'DELETE' })
         setPredictions([])
         toast.success('Prediction data cleared')
@@ -106,7 +108,7 @@ export default function PredictionsPage() {
                     <div className="flex items-center justify-between mb-5">
                         <h2 className="text-base font-semibold text-slate-200">Daily Prediction Breakdown</h2>
                         <button
-                            onClick={resetPredictions}
+                            onClick={() => setPwModalOpen(true)}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/8 text-slate-400 hover:text-white text-xs font-medium transition-all duration-150"
                             title="Delete prediction data"
                         >
@@ -150,6 +152,15 @@ export default function PredictionsPage() {
                 </motion.div>
 
             </main>
+
+            {/* Password Modal */}
+            <PasswordModal
+                isOpen={pwModalOpen}
+                onClose={() => setPwModalOpen(false)}
+                onSuccess={doPredictionsReset}
+                title="Reset Predictions"
+                description="Enter PIN to clear all prediction data. This cannot be undone."
+            />
         </div>
     )
 }
