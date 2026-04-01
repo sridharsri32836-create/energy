@@ -94,9 +94,11 @@ export async function POST(req: NextRequest) {
                 .select('*')
                 .or('send_email_alerts.eq.true,send_sms_alerts.eq.true')
 
-            // Trigger Email & SMS Notifications non-blockingly for high severity events
+            // Trigger Email & SMS Notifications non-blockingly for high/med severity events
             filteredSpikes.forEach(spike => {
-                if (spike.severity === 'HIGH') {
+                if (spike.severity === 'HIGH' || spike.severity === 'MEDIUM') {
+                    console.log(`[Readings API] Notifying for ${spike.severity} alert: ${spike.alertType}`);
+                    
                     // Send to global targets from .env (fallback)
                     sendAlertEmail(spike.alertType ?? 'UNKNOWN', spike.severity ?? 'UNKNOWN', spike.message ?? '')
                         .catch(err => console.error('Global Email error:', err))

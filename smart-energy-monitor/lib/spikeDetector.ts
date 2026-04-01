@@ -120,16 +120,22 @@ export function detectSpike(
     }
 
     // ─── 7. Power Outage / Low Voltage ─────────────────────────────────────
-    if (reading.voltage < 50 && recentReadings.length >= 1) {
+    // If voltage drops significantly (<100V) or crashes from a healthy level, flag it.
+    if (recentReadings.length >= 1) {
         const prev = recentReadings[recentReadings.length - 1]
-        // Only trigger an outage alert if we suddenly drop from a healthy voltage
-        if (prev && prev.voltage > 100) {
+        const isHealthyPrev = prev && prev.voltage > 180
+        const isOutage = reading.voltage < 80
+        const isSignificantDrop = isHealthyPrev && (reading.voltage < prev.voltage * 0.5)
+
+        if (isOutage || isSignificantDrop) {
             results.push({
                 isSpike: true,
                 alertType: 'ANOMALY',
                 severity: 'HIGH',
                 value: reading.voltage,
-                message: `Power outage detected! Voltage crashed from ${prev.voltage.toFixed(1)}V to ${reading.voltage.toFixed(1)}V.`,
+                message: isOutage 
+                    ? `Critical voltage drop detected: ${reading.voltage.toFixed(1)}V. Power outage or severe brownout suspected.`
+                    : `Sudden voltage crash: ${prev.voltage.toFixed(1)}V → ${reading.voltage.toFixed(1)}V detected.`,
             })
         }
     }

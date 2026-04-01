@@ -12,6 +12,21 @@ export const twilioClient = (process.env.TWILIO_ACCOUNT_SID && process.env.TWILI
 const targetEmail = process.env.ALERT_TARGET_EMAIL;
 const targetPhone = process.env.ALERT_TARGET_PHONE;
 const twilioFromPhone = process.env.TWILIO_PHONE_NUMBER;
+const twilioLogPrefix = '[Twilio SMS]';
+
+/**
+ * Normalizes phone numbers to E.164 format for Twilio.
+ * Trims whitespace and ensures a leading '+' is present.
+ */
+function normalizePhoneNumber(phone: string): string {
+    const trimmed = phone.trim().replace(/\s/g, '');
+    if (!trimmed.startsWith('+')) {
+        // Assume Indian numbers if no '+' and 10 digits, or just prepend '+' if user forgot
+        if (trimmed.length === 10) return `+91${trimmed}`;
+        return `+${trimmed}`;
+    }
+    return trimmed;
+}
 
 export async function sendAlertEmail(alertType: string, severity: string, message: string, customTargetEmail?: string) {
     const finalEmail = customTargetEmail || targetEmail;
@@ -59,27 +74,34 @@ export async function sendAlertEmail(alertType: string, severity: string, messag
 }
 
 export async function sendAlertSMS(alertType: string, severity: string, message: string, customTargetPhone?: string) {
-    const finalPhone = customTargetPhone || targetPhone;
+    const finalPhone = normalizePhoneNumber(customTargetPhone || targetPhone || '');
     if (!twilioClient || !twilioFromPhone) {
-        console.warn('Twilio credentials or phone number not defined. Skipping SMS alert.');
+        console.warn(`${twilioLogPrefix} Credentials or phone number not defined. Skipping SMS alert.`);
         return false;
     }
-    if (!finalPhone) {
-        console.warn('No target phone defined. Skipping SMS alert.');
+    if (!finalPhone || finalPhone === '+') {
+        console.warn(`${twilioLogPrefix} No valid target phone defined. Skipping SMS alert.`);
         return false;
     }
 
     try {
+        console.log(`${twilioLogPrefix} Attempting to send to ${finalPhone}...`);
         const smsResponse = await twilioClient.messages.create({
             body: `GridSense 🚨 ${severity} ALERT: ${message}`,
             from: twilioFromPhone,
             to: finalPhone,
         });
 
-        console.log('SMS alert sent successfully (SID):', smsResponse.sid);
+        console.log(`${twilioLogPrefix} Success! SID: ${smsResponse.sid}`);
         return true;
-    } catch (err) {
-        console.error('Failed to send SMS via Twilio:', err);
+    } catch (err: any) {
+        console.error(`${twilioLogPrefix} CRITICAL FAILURE:`, {
+            message: err.message,
+            code: err.code,
+            status: err.status,
+            moreInfo: err.moreInfo,
+            target: finalPhone
+        });
         return false;
     }
 }
