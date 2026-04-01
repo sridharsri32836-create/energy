@@ -1,8 +1,15 @@
-# 🚀 GridSense Serial Bridge Instructions
+# ⚠️ DEPRECATED: GridSense Serial Bridge Instructions
+
+> **Note:** The Smart Energy Monitor now supports a direct, plug-and-play **Web Serial** connection!
+> You no longer need to run this bridge script. Just open the website in Chrome or Edge, click "**⚡ Connect Hardware**", and select your ESP32.
+>
+> *These instructions and scripts are kept here purely as a fallback/backup in case browser serial features fail.*
+
+---
 
 This bridge connects your ESP32 hardware to the **live website** (Vercel) by sending data directly to Supabase.
 
-### 🔌 How to use:
+### 🔌 How to use (Fallback Mode):
 1. **Connect your ESP32** to your laptop via USB.
 2. **Close Arduino IDE Serial Monitor** (if open) to allow the bridge to access the port.
 3. double-click the **`Start-Bridge.bat`** file in the project folder.
