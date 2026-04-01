@@ -32,16 +32,22 @@ export function useRealtimeReadings(initialLimit = 60) {
                 .select('*')
                 .order('timestamp', { ascending: false })
                 .limit(initialLimit)
-            if (data) {
+
+            if (data && data.length > 0) {
                 const sorted = data.reverse()
                 setReadings(sorted)
-                if (sorted.length > 0) {
-                    setLatestReading(sorted[sorted.length - 1])
-                    // Only mark online if the latest reading is recent (within offline threshold)
-                    const latestTs = new Date(sorted[sorted.length - 1].timestamp).getTime()
-                    if (Date.now() - latestTs < OFFLINE_TIMEOUT_MS) {
-                        markOnline()
-                    }
+                
+                // Only set as latest if it's not stale (last 30s)
+                const latest = sorted[sorted.length - 1]
+                const readingTime = new Date(latest.timestamp).getTime()
+                const now = new Date().getTime()
+                
+                if (now - readingTime < OFFLINE_TIMEOUT_MS) {
+                    setLatestReading(latest)
+                    markOnline()
+                } else {
+                    setLatestReading(null)
+                    setIsConnected(false)
                 }
             }
         }

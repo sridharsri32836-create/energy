@@ -168,11 +168,7 @@ export default function DashboardPage() {
 
         {/* 🔌 Web Serial Connection Bar */}
         {isMounted && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md"
-          >
+          <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
             <div className="flex items-center gap-3">
               <div className={`p-2 rounded-lg ${isSerialConnected ? 'bg-neon-green/10 text-neon-green' : 'bg-slate-700/30 text-slate-500'}`}>
                 <Zap className="w-5 h-5" />
@@ -210,7 +206,7 @@ export default function DashboardPage() {
                 )}
               </button>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* ─── Section 1: Metric Cards ─── */}
