@@ -86,24 +86,26 @@ export async function sendAlertSMS(alertType: string, severity: string, message:
     }
 
     try {
-        console.log(`${twilioLogPrefix} Attempting to send to ${finalPhone}...`);
+        console.log(`${twilioLogPrefix} Attempting to send to ${finalPhone} from ${twilioFromPhone}...`);
         const smsResponse = await twilioClient.messages.create({
             body: `GridSense 🚨 ${severity} ALERT: ${message}`,
             from: twilioFromPhone,
             to: finalPhone,
         });
 
-        console.log(`${twilioLogPrefix} Success! SID: ${smsResponse.sid}`);
+        console.log(`${twilioLogPrefix} SUCCESS! SID: ${smsResponse.sid}`);
         return { success: true, sid: smsResponse.sid };
     } catch (err: any) {
+        // Log deep details for console
         const errorDetails = {
             message: err.message,
             code: err.code,
             status: err.status,
             moreInfo: err.moreInfo,
-            target: finalPhone
+            target: finalPhone,
+            from: twilioFromPhone
         };
-        console.error(`${twilioLogPrefix} CRITICAL FAILURE:`, errorDetails);
+        console.error(`${twilioLogPrefix} CRITICAL DELIVERY FAILURE:`, JSON.stringify(errorDetails, null, 2));
         return { success: false, error: errorDetails };
     }
 }

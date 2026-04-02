@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { FileText, Download, Calendar } from 'lucide-react'
 import { Navbar } from '@/components/layout/Navbar'
@@ -15,10 +15,12 @@ export default function ReportsPage() {
     const { alerts, unreadCount } = useAlerts()
     const { isConnected } = useRealtimeReadings(5)
     const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'))
+    const inputRef = useRef<HTMLInputElement>(null)
+    const maxMonth = format(new Date(), 'yyyy-MM')
     const tariffRate = getTariffRate()
 
-    // Filter by selected month
-    const monthStart = startOfMonth(new Date(selectedMonth + '-01'))
+    // Filter by selected month — use parseISO + '-01' to avoid timezone shifts
+    const monthStart = startOfMonth(parseISO(selectedMonth + '-01'))
     const monthEnd = endOfMonth(monthStart)
     const monthData = dailyUsage.filter((d) =>
         isWithinInterval(parseISO(d.date), { start: monthStart, end: monthEnd })
@@ -142,13 +144,19 @@ export default function ReportsPage() {
                         <p className="text-slate-500 text-sm mt-1">Comprehensive monthly electricity usage report</p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md shadow-inner border border-white/10 rounded-xl px-3 py-2 transition-all duration-300">
+                        <div 
+                            onClick={() => inputRef.current?.showPicker()}
+                            className="flex items-center gap-2 bg-white/5 backdrop-blur-md shadow-inner border border-white/10 rounded-xl px-3 py-2 transition-all duration-300 hover:bg-white/10 cursor-pointer"
+                        >
                             <Calendar className="w-4 h-4 text-slate-400" />
                             <input
+                                ref={inputRef}
                                 type="month"
                                 value={selectedMonth}
+                                max={maxMonth}
                                 onChange={(e) => setSelectedMonth(e.target.value)}
-                                className="bg-transparent text-slate-300 text-sm outline-none"
+                                className="bg-transparent text-slate-300 text-sm outline-none min-w-[120px] cursor-pointer"
+                                onClick={(e) => e.stopPropagation()}
                             />
                         </div>
                         <button

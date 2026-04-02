@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
         const { data, error } = await supabase
             .from('daily_usage')
             .select('*')
-            .order('date', { ascending: true })
+            .order('date', { ascending: false })
             .limit(days)
 
         if (error) throw error

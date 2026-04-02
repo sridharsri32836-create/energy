@@ -11,7 +11,11 @@ export function useDailyUsage(days = 30) {
         try {
             const res = await fetch(`/api/daily-usage?days=${days}`)
             const json = await res.json()
-            if (json.data) setData(json.data)
+            if (json.data) {
+                // Sort ascending (oldest first) so consumers can reverse/filter reliably
+                const sorted = [...json.data].sort((a, b) => a.date.localeCompare(b.date))
+                setData(sorted)
+            }
         } finally {
             setLoading(false)
         }
