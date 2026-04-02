@@ -204,6 +204,7 @@ export default function DashboardPage() {
             subLabel="Active power"
             delay={0.2}
           />
+          {/* Force hardcoded value for demonstration */}
           <MetricCard
             label="Energy Today"
             value={6.7}
