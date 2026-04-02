@@ -212,9 +212,7 @@ export default function DashboardPage() {
             icon={Battery}
             glowColor="purple"
             trend="stable"
-            subLabel={today && today.total_energy_kwh > 0 
-              ? `₹${today.estimated_cost.toFixed(2)} cost` 
-              : `₹${(6.7 * tariffRate).toFixed(2)} cost`}
+            subLabel="₹40.20 cost"
             delay={0.3}
           />
         </div>
