@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
 
         // 5. Upsert daily_usage aggregate
         const dateStr = (timestamp ? new Date(timestamp) : new Date()).toISOString().split('T')[0]
-        const tariffRate = 6 // default; can be overridden via env later
+        const tariffRate = 6 // ₹ per kWh - can be fetched from config later
         
         let energyDelta = 0;
         if (recentData && recentData.length > 0) {
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
             const lastTime = new Date(lastReading.timestamp).getTime();
             const msDiff = now - lastTime;
             
-            // If the last reading was within 10 minutes, calculate power * time
+            // If the last reading was within 10 minutes, calculate Pavg * Δt
             if (msDiff > 0 && msDiff < 10 * 60 * 1000) {
                 // Average power in kW * hours elapsed
                 const avgPowerKw = ((power + lastReading.power) / 2) / 1000;
@@ -140,14 +140,17 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        // Get current day total
-        const { data: existingDay } = await supabase
+
+        // Use .select() instead of .single() to avoid 406 error when row is missing
+        const { data: dayRows } = await supabase
             .from('daily_usage')
             .select('total_energy_kwh')
             .eq('date', dateStr)
-            .single()
+            .limit(1)
 
-        const newTotal = (existingDay?.total_energy_kwh ?? 0) + energyDelta
+        const existingTotal = dayRows && dayRows.length > 0 ? dayRows[0].total_energy_kwh : 0
+        const newTotal = existingTotal + energyDelta
+        
         await supabase.from('daily_usage').upsert({
             date: dateStr,
             total_energy_kwh: newTotal,

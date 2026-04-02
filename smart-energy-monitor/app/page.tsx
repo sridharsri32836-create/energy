@@ -86,7 +86,8 @@ export default function DashboardPage() {
   }, [unreadCount, alerts])
 
   const latest = latestReading
-  const today = dailyUsage[dailyUsage.length - 1]
+  const todayDateStr = new Date().toISOString().split('T')[0]
+  const today = dailyUsage.find(d => d.date === todayDateStr)
   const weekTotal = dailyUsage.slice(-7).reduce((s, d) => s + d.total_energy_kwh, 0)
   const monthProjection = dailyUsage.slice(-7).reduce((s, d) => s + d.estimated_cost, 0) * (30 / 7)
 
