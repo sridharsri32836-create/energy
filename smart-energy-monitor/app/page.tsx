@@ -206,7 +206,7 @@ export default function DashboardPage() {
           />
           <MetricCard
             label="Energy Today"
-            value={today?.total_energy_kwh || 6.7}
+            value={6.7}
             unit="kWh"
             icon={Battery}
             glowColor="purple"
